@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Productivity Suite | All-in-One Tool</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .markdown-preview h1 { @apply text-2xl font-bold mb-4; }
+        .markdown-preview h2 { @apply text-xl font-bold mb-3; }
+        .markdown-preview p { @apply mb-3; }
+        .markdown-preview ul { @apply list-disc pl-5 mb-3; }
+        .markdown-preview ol { @apply list-decimal pl-5 mb-3; }
+        .markdown-preview code { @apply bg-gray-100 px-1 rounded; }
+        .markdown-preview pre { @apply bg-gray-100 p-2 rounded mb-3; }
+        .markdown-preview blockquote { @apply border-l-4 border-gray-300 pl-4 italic mb-3; }
+        
+        .kanban-column { min-height: 500px; }
+        .kanban-card { transition: all 0.3s ease; }
+        .kanban-card:hover { @apply shadow-lg; }
+        
+        .mindmap-node { transition: all 0.2s ease; }
+        .mindmap-node:hover { transform: scale(1.05); }
+        
+        .pomodoro-timer {
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+            transition: all 0.3s ease;
+        }
+        .pomodoro-timer.break {
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+        }
+        
+        .mood-option:hover { transform: scale(1.1); }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="flex justify-between items-center mb-8">
+            <div>
+                <h1 class="text-3xl font-bold text-indigo-600">Productivity Suite</h1>
+                <p class="text-gray-600">Your all-in-one productivity dashboard</p>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="relative">
+                    <input type="text" placeholder="Search..." class="pl-10 pr-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                </div>
+                <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center">
+                    <i class="fas fa-user text-indigo-600"></i>
+                </div>
+            </div>
+        </header>
+        
+        <!-- Main Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left Column -->
+            <div class="space-y-6">
+                <!-- To-Do List -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-semibold flex items-center">
+                            <i class="fas fa-tasks text-indigo-500 mr-2"></i> To-Do List
+                        </h2>
+                        <button id="add-todo-btn" class="bg-indigo-500 text-white p-2 rounded-full hover:bg-indigo-600 transition">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                    
+                    <div id="todo-form" class="hidden mb-4">
+                        <input type="text" id="todo-input" placeholder="What needs to be done?" class="w-full p-2 border border-gray-300 rounded mb-2">
+                        <input type="date" id="todo-date" class="w-full p-2 border border-gray-300 rounded mb-2">
+                        <div class="flex justify-end space-x-2">
+                            <button id="cancel-todo" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">Cancel</button>
+                            <button id="save-todo" class="px-3 py-1 bg-indigo-500 text-white rounded hover:bg-indigo-600">Add</button>
+                        </div>
+                    </div>
+                    
+                    <div id="todo-list" class="space-y-2">
+                        <!-- Sample todos -->
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div class="flex items-center">
+                                <input type="checkbox" class="mr-3 h-5 w-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                                <div>
+                                    <p class="font-medium">Complete project proposal</p>
+                                    <p class="text-sm text-gray-500">Due: Tomorrow</p>
+                                </div>
+                            </div>
+                            <button class="text-gray-400 hover:text-red-500">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div class="flex items-center">
+                                <input type="checkbox" class="mr-3 h-5 w-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                                <div>
+                                    <p class="font-medium">Buy groceries</p>
+                                    <p class="text-sm text-gray-500">Due: Today</p>
+                                </div>
+                            </div>
+                            <button class="text-gray-400 hover:text-red-500">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Pomodoro Timer -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h2 class="text-xl font-semibold mb-4 flex items-center">
+                        <i class="fas fa-clock text-red-500 mr-2"></i> Pomodoro Timer
+                    </h2>
+                    
+                    <div class="pomodoro-timer bg-red-50 rounded-full w-48 h-48 mx-auto flex flex-col items-center justify-center mb-4">
+                        <div id="timer-display" class="text-3xl font-bold text-red-500">25:00</div>
+                        <div id="timer-state" class="text-gray-600">Focus Time</div>
+                    </div>
+                    
+                    <div class="flex justify-center space-x-4">
+                        <button id="start-timer" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">
+                            <i class="fas fa-play mr-1"></i> Start
+                        </button>
+                        <button id="pause-timer" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600">
+                            <i class="fas fa-pause mr-1"></i> Pause
+                        </button>
+                        <button id="reset-timer" class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">
+                            <i class="fas fa-redo mr-1"></i> Reset
+                        </button>
+                    </div>
+                    
+                    <div class="mt-6">
+                        <h3 class="font-medium mb-2">Current Task</h3>
+                        <select id="pomodoro-task" class="w-full p-2 border border-gray-300 rounded">
+                            <option>Select a task</option>
+                            <option>Complete project proposal</option>
+                            <option>Write documentation</option>
+                            <option>Code review</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Habit Tracker -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h2 class="text-xl font-semibold mb-4 flex items-center">
+                        <i class="fas fa-calendar-check text-green-500 mr-2"></i> Habit Tracker
+                    </h2>
+                    
+                    <div class="mb-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <span>Exercise</span>
+                            <span class="text-green-500 font-medium">7 day streak!</span>
+                        </div>
+                        <div class="grid grid-cols-7 gap-1">
+                            <div class="h-8 rounded bg-green-100 flex items-center justify-center">
+                                <i class="fas fa-check text-green-500"></i>
+                            </div>
+                            <div class="h-8 rounded bg-green-100 flex items-center justify-center">
+                                <i class="fas fa-check text-green-500"></i>
+                            </div>
+                            <div class="h-8 rounded bg-green-100 flex items-center justify-center">
+                                <i class="fas fa-check text-green-500"></i>
+                            </div>
+                            <div class="h-8 rounded bg-green-100 flex items-center justify-center">
+                                <i class="fas fa-check text-green-500"></i>
+                            </div>
+                            <div class="h-8 rounded bg-green-100 flex items-center justify-center">
+                                <i class="fas fa-check text-green-500"></i>
+                            </div>
+                            <div class="h-8 rounded bg-green-100 flex items-center justify-center">
+                                <i class="fas fa-check text-green-500"></i>
+                            </div>
+                            <div class="h-8 rounded bg-green-100 flex items-center justify-center">
+                                <i class="fas fa-check text-green-500"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <span>Meditation</span>
+                            <span class="text-green-500 font-medium">3 day streak</span>
+                        </div>
+                        <div class="grid grid-cols-7 gap-1">
+                            <div class="h-8 rounded bg-gray-100"></div>
+                            <div class="h-8 rounded bg-gray-100"></div>
+                            <div class="h-8 rounded bg-gray-100"></div>
+                            <div class="h-8 rounded bg-gray-100"></div>
+                            <div class="h-8 rounded bg-green-100 flex items-center justify-center">
+                                <i class="fas fa-check text-green-500"></i>
+                            </div>
+                            <div class="h-8 rounded bg-green-100 flex items-center justify-center">
+                                <i class="fas fa-check text-green-500"></i>
+                            </div>
+                            <div class="h-8 rounded bg-green-100 flex items-center justify-center">
+                                <i class="fas fa-check text-green-500"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-between items-center mt-6">
+                        <h3 class="font-medium">Add New Habit</h3>
+                        <button id="add-habit-btn" class="bg-green-500 text-white p-2 rounded-full hover:bg-green-600 transition">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                    
+                    <div id="habit-form" class="hidden mt-4">
+                        <input type="text" id="habit-input" placeholder="Habit name" class="w-full p-2 border border-gray-300 rounded mb-2">
+                        <div class="flex justify-end space-x-2">
+                            <button id="cancel-habit" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">Cancel</button>
+                            <button id="save-habit" class="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600">Add</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Middle Column -->
+            <div class="space-y-6">
+                <!-- Journal with Mood Tracking -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h2 class="text-xl font-semibold mb-4 flex items-center">
+                        <i class="fas fa-book text-yellow-500 mr-2"></i> Daily Journal
+                    </h2>
+                    
+                    <div class="mb-4">
+                        <h3 class="font-medium mb-2">Today's Mood</h3>
+                        <div class="flex justify-between">
+                            <div class="mood-option flex flex-col items-center p-2 rounded-lg cursor-pointer hover:bg-yellow-50">
+                                <div class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mb-1">
+                                    <i class="fas fa-angry text-red-500 text-xl"></i>
+                                </div>
+                                <span class="text-xs">Angry</span>
+                            </div>
+                            <div class="mood-option flex flex-col items-center p-2 rounded-lg cursor-pointer hover:bg-yellow-50">
+                                <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mb-1">
+                                    <i class="fas fa-sad-tear text-blue-500 text-xl"></i>
+                                </div>
+                                <span class="text-xs">Sad</span>
+                            </div>
+                            <div class="mood-option flex flex-col items-center p-2 rounded-lg cursor-pointer hover:bg-yellow-50">
+                                <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mb-1">
+                                    <i class="fas fa-meh text-gray-500 text-xl"></i>
+                                </div>
+                                <span class="text-xs">Neutral</span>
+                            </div>
+                            <div class="mood-option flex flex-col items-center p-2 rounded-lg cursor-pointer hover:bg-yellow-50">
+                                <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mb-1">
+                                    <i class="fas fa-smile text-green-500 text-xl"></i>
+                                </div>
+                                <span class="text-xs">Happy</span>
+                            </div>
+                            <div class="mood-option flex flex-col items-center p-2 rounded-lg cursor-pointer hover:bg-yellow-50">
+                                <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center mb-1">
+                                    <i class="fas fa-grin-stars text-purple-500 text-xl"></i>
+                                </div>
+                                <span class="text-xs">Excited</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h3 class="font-medium mb-2">Today's Highlights</h3>
+                        <textarea id="journal-entry" class="w-full p-3 border border-gray-300 rounded-lg h-40" placeholder="How was your day? What are you grateful for?"></textarea>
+                    </div>
+                    
+                    <div class="flex justify-between">
+                        <button id="save-journal" class="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600">
+                            <i class="fas fa-save mr-1"></i> Save Entry
+                        </button>
+                        <button id="view-journal-history" class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">
+                            <i class="fas fa-history mr-1"></i> View History
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Goal Setting & Progress Tracker -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h2 class="text-xl font-semibold mb-4 flex items-center">
+                        <i class="fas fa-bullseye text-blue-500 mr-2"></i> Goals Tracker
+                    </h2>
+                    
+                    <div class="mb-6">
+                        <div class="flex justify-between items-center mb-2">
+                            <span>Learn Spanish</span>
+                            <span class="text-blue-500 font-medium">45% complete</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2.5">
+                            <div class="bg-blue-500 h-2.5 rounded-full" style="width: 45%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <div class="flex justify-between items-center mb-2">
+                            <span>Save for Vacation</span>
+                            <span class="text-blue-500 font-medium">$1,200/$3,000</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2.5">
+                            <div class="bg-blue-500 h-2.5 rounded-full" style="width: 40%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <div class="flex justify-between items-center mb-2">
+                            <span>Read 12 Books This Year</span>
+                            <span class="text-blue-500 font-medium">5/12</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2.5">
+                            <div class="bg-blue-500 h-2.5 rounded-full" style="width: 42%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-between items-center mt-6">
+                        <h3 class="font-medium">Set New Goal</h3>
+                        <button id="add-goal-btn" class="bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600 transition">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                    
+                    <div id="goal-form" class="hidden mt-4">
+                        <input type="text" id="goal-input" placeholder="Goal name" class="w-full p-2 border border-gray-300 rounded mb-2">
+                        <div class="grid grid-cols-2 gap-2 mb-2">
+                            <input type="number" id="goal-current" placeholder="Current value" class="p-2 border border-gray-300 rounded">
+                            <input type="number" id="goal-target" placeholder="Target value" class="p-2 border border-gray-300 rounded">
+                        </div>
+                        <div class="flex justify-end space-x-2">
+                            <button id="cancel-goal" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">Cancel</button>
+                            <button id="save-goal" class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">Add</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Decision Maker -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h2 class="text-xl font-semibold mb-4 flex items-center">
+                        <i class="fas fa-balance-scale text-purple-500 mr-2"></i> Decision Maker
+                    </h2>
+                    
+                    <div class="mb-4">
+                        <input type="text" id="decision-title" placeholder="Decision to make" class="w-full p-2 border border-gray-300 rounded mb-2">
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <h3 class="font-medium mb-2 text-green-600">Pros</h3>
+                            <div id="pros-list" class="space-y-2">
+                                <div class="flex items-center">
+                                    <input type="text" placeholder="Add pro" class="flex-1 p-2 border border-gray-300 rounded mr-2">
+                                    <button class="bg-green-500 text-white p-2 rounded hover:bg-green-600">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="font-medium mb-2 text-red-600">Cons</h3>
+                            <div id="cons-list" class="space-y-2">
+                                <div class="flex items-center">
+                                    <input type="text" placeholder="Add con" class="flex-1 p-2 border border-gray-300 rounded mr-2">
+                                    <button class="bg-red-500 text-white p-2 rounded hover:bg-red-600">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button id="make-decision" class="w-full py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600">
+                        <i class="fas fa-magic mr-1"></i> Help Me Decide
+                    </button>
+                    
+                    <div id="decision-result" class="mt-4 p-3 bg-purple-50 rounded-lg hidden">
+                        <h3 class="font-medium mb-1">Our Suggestion:</h3>
+                        <p id="decision-text"></p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Column -->
+            <div class="space-y-6">
+                <!-- Note-Taking App -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h2 class="text-xl font-semibold mb-4 flex items-center">
+                        <i class="fas fa-edit text-pink-500 mr-2"></i> Notes
+                    </h2>
+                    
+                    <div class="flex justify-between mb-4">
+                        <div class="relative flex-1 mr-2">
+                            <input type="text" id="note-search" placeholder="Search notes..." class="w-full pl-8 pr-4 py-2 rounded border border-gray-300">
+                            <i class="fas fa-search absolute left-2 top-3 text-gray-400"></i>
+                        </div>
+                        <button id="add-note-btn" class="bg-pink-500 text-white p-2 rounded hover:bg-pink-600">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+                        <div class="p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-pink-50">
+                            <h3 class="font-medium">Meeting Notes</h3>
+                            <p class="text-sm text-gray-500 truncate">Action items from today's team meeting...</p>
+                        </div>
+                        <div class="p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-pink-50">
+                            <h3 class="font-medium">Project Ideas</h3>
+                            <p class="text-sm text-gray-500 truncate">List of potential projects to work on...</p>
+                        </div>
+                    </div>
+                    
+                    <div id="note-editor" class="hidden">
+                        <input type="text" id="note-title" placeholder="Note title" class="w-full p-2 border border-gray-300 rounded mb-2">
+                        <div class="flex border-b border-gray-200 mb-2">
+                            <button class="px-3 py-1 border-b-2 border-pink-500 font-medium">Write</button>
+                            <button class="px-3 py-1 text-gray-500">Preview</button>
+                        </div>
+                        <textarea id="note-content" class="w-full p-3 border border-gray-300 rounded-lg h-40" placeholder="Start writing... (Markdown supported)"></textarea>
+                        <div class="markdown-preview hidden p-3 border border-gray-300 rounded-lg h-40 bg-gray-50"></div>
+                        
+                        <div class="flex justify-between mt-3">
+                            <div>
+                                <button class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 mr-2">
+                                    <i class="fas fa-tag"></i> Add Tag
+                                </button>
+                                <select class="p-1 border border-gray-300 rounded">
+                                    <option>Personal</option>
+                                    <option>Work</option>
+                                    <option>Ideas</option>
+                                </select>
+                            </div>
+                            <div>
+                                <button id="cancel-note" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 mr-2">Cancel</button>
+                                <button id="save-note" class="px-3 py-1 bg-pink-500 text-white rounded hover:bg-pink-600">Save</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Bookmark Manager -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h2 class="text-xl font-semibold mb-4 flex items-center">
+                        <i class="fas fa-bookmark text-orange-500 mr-2"></i> Bookmarks
+                    </h2>
+                    
+                    <div class="flex mb-4">
+                        <div class="relative flex-1 mr-2">
+                            <input type="text" placeholder="Search bookmarks..." class="w-full pl-8 pr-4 py-2 rounded border border-gray-300">
+                            <i class="fas fa-search absolute left-2 top-3 text-gray-400"></i>
+                        </div>
+                        <button class="bg-orange-500 text-white p-2 rounded hover:bg-orange-600">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        <span class="px-3 py-1 bg-gray-100 rounded-full text-sm cursor-pointer hover:bg-gray-200">All</span>
+                        <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm cursor-pointer hover:bg-blue-200">Work</span>
+                        <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm cursor-pointer hover:bg-green-200">Learning</span>
+                        <span class="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm cursor-pointer hover:bg-purple-200">Tools</span>
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between p-2 hover:bg-orange-50 rounded-lg">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 bg-blue-100 rounded flex items-center justify-center mr-3">
+                                    <i class="fas fa-globe text-blue-500"></i>
+                                </div>
+                                <div>
+                                    <p class="font-medium">Tailwind CSS</p>
+                                    <p class="text-sm text-gray-500 truncate w-40">https://tailwindcss.com</p>
+                                </div>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="text-gray-400 hover:text-blue-500">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="text-gray-400 hover:text-red-500">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between p-2 hover:bg-orange-50 rounded-lg">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 bg-green-100 rounded flex items-center justify-center mr-3">
+                                    <i class="fas fa-book text-green-500"></i>
+                                </div>
+                                <div>
+                                    <p class="font-medium">JavaScript Info</p>
+                                    <p class="text-sm text-gray-500 truncate w-40">https://javascript.info</p>
+                                </div>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="text-gray-400 hover:text-blue-500">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="text-gray-400 hover:text-red-500">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Project Management -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h2 class="text-xl font-semibold mb-4 flex items-center">
+                        <i class="fas fa-project-diagram text-teal-500 mr-2"></i> Projects
+                    </h2>
+                    
+                    <div class="kanban-board overflow-x-auto pb-2">
+                        <div class="flex space-x-4 min-w-max">
+                            <!-- Backlog Column -->
+                            <div class="kanban-column w-64 bg-gray-50 rounded-lg p-3">
+                                <div class="flex justify-between items-center mb-3">
+                                    <h3 class="font-medium">Backlog</h3>
+                                    <span class="text-xs bg-gray-200 px-2 py-1 rounded-full">3</span>
+                                </div>
+                                <div class="kanban-card bg-white p-3 rounded-lg shadow mb-3 cursor-move">
+                                    <p class="font-medium mb-1">Research competitors</p>
+                                    <p class="text-xs text-gray-500">Low priority</p>
+                                </div>
+                                <div class="kanban-card bg-white p-3 rounded-lg shadow mb-3 cursor-move">
+                                    <p class="font-medium mb-1">Update documentation</p>
+                                    <div class="flex items-center text-xs text-gray-500">
+                                        <i class="fas fa-user-circle mr-1"></i> Assigned to you
+                                    </div>
+                                </div>
+                                <button class="w-full py-2 text-gray-500 hover:text-teal-500">
+                                    <i class="fas fa-plus mr-1"></i> Add card
+                                </button>
+                            </div>
+                            
+                            <!-- In Progress Column -->
+                            <div class="kanban-column w-64 bg-gray-50 rounded-lg p-3">
+                                <div class="flex justify-between items-center mb-3">
+                                    <h3 class="font-medium">In Progress</h3>
+                                    <span class="text-xs bg-gray-200 px-2 py-1 rounded-full">2</span>
+                                </div>
+                                <div class="kanban-card bg-white p-3 rounded-lg shadow mb-3 cursor-move">
+                                    <p class="font-medium mb-1">Design new logo</p>
+                                    <div class="flex items-center text-xs text-gray-500">
+                                        <span class="w-2 h-2 bg-yellow-500 rounded-full mr-1"></span>
+                                        Due tomorrow
+                                    </div>
+                                </div>
+                                <div class="kanban-card bg-white p-3 rounded-lg shadow mb-3 cursor-move">
+                                    <p class="font-medium mb-1">User testing</p>
+                                    <div class="flex items-center text-xs text-gray-500">
+                                        <i class="fas fa-users mr-1"></i> 5 participants
+                                    </div>
+                                </div>
+                                <button class="w-full py-2 text-gray-500 hover:text-teal-500">
+                                    <i class="fas fa-plus mr-1"></i> Add card
+                                </button>
+                            </div>
+                            
+                            <!-- Review Column -->
+                            <div class="kanban-column w-64 bg-gray-50 rounded-lg p-3">
+                                <div class="flex justify-between items-center mb-3">
+                                    <h3 class="font-medium">Review</h3>
+                                    <span class="text-xs bg-gray-200 px-2 py-1 rounded-full">1</span>
+                                </div>
+                                <div class="kanban-card bg-white p-3 rounded-lg shadow mb-3 cursor-move">
+                                    <p class="font-medium mb-1">Marketing copy</p>
+                                    <div class="flex items-center text-xs text-gray-500">
+                                        <span class="w-2 h-2 bg-red-500 rounded-full mr-1"></span>
+                                        Overdue
+                                    </div>
+                                </div>
+                                <button class="w-full py-2 text-gray-500 hover:text-teal-500">
+                                    <i class="fas fa-plus mr-1"></i> Add card
+                                </button>
+                            </div>
+                            
+                            <!-- Done Column -->
+                            <div class="kanban-column w-64 bg-gray-50 rounded-lg p-3">
+                                <div class="flex justify-between items-center mb-3">
+                                    <h3 class="font-medium">Done</h3>
+                                    <span class="text-xs bg-gray-200 px-2 py-1 rounded-full">4</span>
+                                </div>
+                                <div class="kanban-card bg-white p-3 rounded-lg shadow mb-3 opacity-70">
+                                    <p class="font-medium mb-1">Homepage redesign</p>
+                                    <div class="flex items-center text-xs text-gray-500">
+                                        <i class="fas fa-check-circle text-green-500 mr-1"></i>
+                                        Completed
+                                    </div>
+                                </div>
+                                <button class="w-full py-2 text-gray-500 hover:text-teal-500">
+                                    <i class="fas fa-plus mr-1"></i> Add card
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // To-Do List Functionality
+        document.getElementById('add-todo-btn').addEventListener('click', function() {
+            document.getElementById('todo-form').classList.toggle('hidden');
+        });
+        
+        document.getElementById('cancel-todo').addEventListener('click', function() {
+            document.getElementById('todo-form').classList.add('hidden');
+            document.getElementById('todo-input').value = '';
+            document.getElementById('todo-date').value = '';
+        });
+        
+        document.getElementById('save-todo').addEventListener('click', function() {
+            const task = document.getElementById('todo-input').value;
+            const date = document.getElementById('todo-date').value;
+            
+            if (task) {
+                const todoItem = document.createElement('div');
+                todoItem.className = 'flex items-center justify-between p-3 bg-gray-50 rounded-lg';
+                
+                const formattedDate = date ? new Date(date).toLocaleDateString('en-US', { 
+                    weekday: 'short', 
+                    month: 'short', 
+                    day: 'numeric' 
+                }) : 'No due date';
+                
+                todoItem.innerHTML = `
+                    <div class="flex items-center">
+                        <input type="checkbox" class="mr-3 h-5 w-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                        <div>
+                            <p class="font-medium">${task}</p>
+                            <p class="text-sm text-gray-500">Due: ${formattedDate}</p>
+                        </div>
+                    </div>
+                    <button class="text-gray-400 hover:text-red-500">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                `;
+                
+                document.getElementById('todo-list').prepend(todoItem);
+                document.getElementById('todo-form').classList.add('hidden');
+                document.getElementById('todo-input').value = '';
+                document.getElementById('todo-date').value = '';
+                
+                // Add delete functionality
+                todoItem.querySelector('button').addEventListener('click', function() {
+                    todoItem.remove();
+                });
+            }
+        });
+        
+        // Pomodoro Timer Functionality
+        let timerInterval;
+        let minutes = 25;
+        let seconds = 0;
+        let isRunning = false;
+        let isBreak = false;
+        
+        function updateTimerDisplay() {
+            const display = document.getElementById('timer-display');
+            display.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+        
+        document.getElementById('start-timer').addEventListener('click', function() {
+            if (!isRunning) {
+                isRunning = true;
+                timerInterval = setInterval(function() {
+                    if (seconds === 0) {
+                        if (minutes === 0) {
+                            // Timer completed
+                            clearInterval(timerInterval);
+                            isRunning = false;
+                            
+                            // Switch between work and break
+                            if (!isBreak) {
+                                // Start break
+                                isBreak = true;
+                                minutes = 5;
+                                document.getElementById('timer-state').textContent = 'Break Time';
+                                document.querySelector('.pomodoro-timer').classList.add('break');
+                                alert('Time for a break!');
+                            } else {
+                                // Start work session
+                                isBreak = false;
+                                minutes = 25;
+                                document.getElementById('timer-state').textContent = 'Focus Time';
+                                document.querySelector('.pomodoro-timer').classList.remove('break');
+                                alert('Back to work!');
+                            }
+                            
+                            seconds = 0;
+                            updateTimerDisplay();
+                            return;
+                        }
+                        minutes--;
+                        seconds = 59;
+                    } else {
+                        seconds--;
+                    }
+                    updateTimerDisplay();
+                }, 1000);
+            }
+        });
+        
+        document.getElementById('pause-timer').addEventListener('click', function() {
+            clearInterval(timerInterval);
+            isRunning = false;
+        });
+        
+        document.getElementById('reset-timer').addEventListener('click', function() {
+            clearInterval(timerInterval);
+            isRunning = false;
+            isBreak = false;
+            minutes = 25;
+            seconds = 0;
+            document.getElementById('timer-state').textContent = 'Focus Time';
+            document.querySelector('.pomodoro-timer').classList.remove('break');
+            updateTimerDisplay();
+        });
+        
+        // Habit Tracker Functionality
+        document.getElementById('add-habit-btn').addEventListener('click', function() {
+            document.getElementById('habit-form').classList.toggle('hidden');
+        });
+        
+        document.getElementById('cancel-habit').addEventListener('click', function() {
+            document.getElementById('habit-form').classList.add('hidden');
+            document.getElementById('habit-input').value = '';
+        });
+        
+        // Goal Tracker Functionality
+        document.getElementById('add-goal-btn').addEventListener('click', function() {
+            document.getElementById('goal-form').classList.toggle('hidden');
+        });
+        
+        document.getElementById('cancel-goal').addEventListener('click', function() {
+            document.getElementById('goal-form').classList.add('hidden');
+            document.getElementById('goal-input').value = '';
+            document.getElementById('goal-current').value = '';
+            document.getElementById('goal-target').value = '';
+        });
+        
+        // Journal Functionality
+        document.getElementById('save-journal').addEventListener('click', function() {
+            const entry = document.getElementById('journal-entry').value;
+            if (entry) {
+                alert('Journal entry saved!');
+                document.getElementById('journal-entry').value = '';
+            }
+        });
+        
+        // Decision Maker Functionality
+        document.getElementById('make-decision').addEventListener('click', function() {
+            const pros = document.querySelectorAll('#pros-list input[type="text"]');
+            const cons = document.querySelectorAll('#cons-list input[type="text"]');
+            
+            let proCount = 0;
+            let conCount = 0;
+            
+            pros.forEach(pro => { if (pro.value) proCount++; });
+            cons.forEach(con => { if (con.value) conCount++; });
+            
+            const result = document.getElementById('decision-result');
+            const decisionText = document.getElementById('decision-text');
+            
+            if (proCount === 0 && conCount === 0) {
+                decisionText.textContent = "Please add some pros and cons first!";
+            } else if (proCount > conCount) {
+                decisionText.textContent = "The pros outweigh the cons! You should probably go for it.";
+            } else if (conCount > proCount) {
+                decisionText.textContent = "The cons outweigh the pros. You might want to reconsider.";
+            } else {
+                decisionText.textContent = "It's a tie! You might need to consider other factors or sleep on it.";
+            }
+            
+            result.classList.remove('hidden');
+        });
+        
+        // Notes Functionality
+        document.getElementById('add-note-btn').addEventListener('click', function() {
+            document.getElementById('note-editor').classList.remove('hidden');
+        });
+        
+        document.getElementById('cancel-note').addEventListener('click', function() {
+            document.getElementById('note-editor').classList.add('hidden');
+            document.getElementById('note-title').value = '';
+            document.getElementById('note-content').value = '';
+        });
+        
+        // Initialize timer display
+        updateTimerDisplay();
+    </script>
+</body>
+</html>
